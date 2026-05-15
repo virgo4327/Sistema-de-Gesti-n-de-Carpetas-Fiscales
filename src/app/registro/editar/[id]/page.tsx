@@ -250,14 +250,17 @@ export default function EditarRegistroPage() {
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Fiscalía *</label>
-                <input 
-                  type="text" 
-                  placeholder="Ej: 1ra Fiscalía Anticorrupción"
+                <select 
                   required
-                  className="input-field h-11"
+                  className="input-field h-11 cursor-pointer"
                   value={formData.fiscalia}
                   onChange={(e) => setFormData({...formData, fiscalia: e.target.value})}
-                />
+                >
+                  <option value="">Seleccione una fiscalía...</option>
+                  <option value="FECOF-SUPERIOR-LORETO" className="bg-[#151B28]">FECOF-SUPERIOR-LORETO</option>
+                  <option value="FECOF - LORETO" className="bg-[#151B28]">FECOF - LORETO</option>
+                  <option value="FECOF - NAUTA" className="bg-[#151B28]">FECOF - NAUTA</option>
+                </select>
               </div>
 
               <div className="space-y-2">
