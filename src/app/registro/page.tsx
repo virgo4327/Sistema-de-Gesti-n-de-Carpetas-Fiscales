@@ -151,6 +151,22 @@ export default function RegistroPage() {
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+
+    // Configurar anchos de columna para que se vea ordenado
+    const wscols = [
+      { wch: 15 }, // FECHA INGRESO
+      { wch: 20 }, // N° CARPETA FISCAL
+      { wch: 35 }, // INVESTIGADO
+      { wch: 45 }, // DELITO / ARTÍCULO
+      { wch: 35 }, // AGRAVIADO
+      { wch: 25 }, // FISCALÍA
+      { wch: 30 }, // FISCAL RESPONSABLE
+      { wch: 15 }, // VENCIMIENTO
+      { wch: 18 }, // ESTADO
+      { wch: 50 }  // INFO RESOLUCIÓN
+    ];
+    worksheet['!cols'] = wscols;
+
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Carpetas Fiscales');
 
