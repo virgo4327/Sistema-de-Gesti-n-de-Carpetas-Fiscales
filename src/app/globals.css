@@ -48,6 +48,14 @@ body {
   .input-field {
     @apply w-full px-3 py-2 bg-[#0B0E14] border border-[#1E293B] text-white rounded-md outline-none focus:ring-2 focus:ring-[#185FA5] focus:border-transparent transition-all;
   }
+
+  /* Color azul institucional para el icono de calendario nativo */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(28%) sepia(98%) saturate(1512%) hue-rotate(193deg) brightness(93%) contrast(92%);
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 2px;
+  }
   
   .table-container {
     @apply overflow-x-auto border border-[#1E293B] rounded-lg bg-[#151B28];

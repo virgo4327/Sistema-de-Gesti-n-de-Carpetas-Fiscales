@@ -43,16 +43,28 @@ export default function Dashboard() {
       .select('*');
 
     if (!error && carpetas) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Estándar para comparación de fechas
+
       const total = carpetas.length;
-      const investigacion = carpetas.filter(c => c.estado === 'EN INVESTIGACIÓN').length;
-      const vencidos = carpetas.filter(c => c.estado === 'VENCIDO').length;
-      const resueltos = carpetas.filter(c => c.estado === 'RESUELTO').length;
+      
+      // Lógica corregida: Vencidos son los que tienen estado VENCIDO o cuya fecha ya pasó (y no están resueltos)
+      const vencidosCount = carpetas.filter(c => 
+        c.estado === 'VENCIDO' || (new Date(c.fecha_vencimiento) < today && c.estado !== 'RESUELTO')
+      ).length;
+
+      // Investigación (Vigentes): Solo los que están en investigación y NO han vencido
+      const investigacionCount = carpetas.filter(c => 
+        c.estado === 'EN INVESTIGACIÓN' && new Date(c.fecha_vencimiento) >= today
+      ).length;
+
+      const resueltosCount = carpetas.filter(c => c.estado === 'RESUELTO').length;
 
       setStats([
         { label: 'Total Carpetas', value: total, icon: FileText, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-        { label: 'En Investigación', value: investigacion, icon: Clock, color: 'text-orange-400', bg: 'bg-orange-500/10', sub: 'Vigentes' },
-        { label: 'Vencidos / Críticos', value: vencidos, icon: ShieldAlert, color: 'text-red-400', bg: 'bg-red-500/10', sub: 'Acción Inmediata' },
-        { label: 'Resueltos', value: resueltos, icon: CheckCircle2, color: 'text-green-400', bg: 'bg-green-500/10', sub: 'Con Documento' },
+        { label: 'En Investigación', value: investigacionCount, icon: Clock, color: 'text-orange-400', bg: 'bg-orange-500/10', sub: 'Vigentes' },
+        { label: 'Vencidos / Críticos', value: vencidosCount, icon: ShieldAlert, color: 'text-red-400', bg: 'bg-red-500/10', sub: 'Acción Inmediata' },
+        { label: 'Resueltos', value: resueltosCount, icon: CheckCircle2, color: 'text-green-400', bg: 'bg-green-500/10', sub: 'Con Documento' },
       ]);
 
       // Process crime data
@@ -70,14 +82,13 @@ export default function Dashboard() {
       // Process status data for percentages
       if (total > 0) {
         setStatusData([
-          { name: 'En investigación', value: Math.round((investigacion / total) * 100), color: '#3B82F6' },
-          { name: 'Vencido', value: Math.round((vencidos / total) * 100), color: '#EF4444' },
-          { name: 'Resuelto', value: Math.round((resueltos / total) * 100), color: '#10B981' },
+          { name: 'En investigación', value: Math.round((investigacionCount / total) * 100), color: '#3B82F6' },
+          { name: 'Vencido', value: Math.round((vencidosCount / total) * 100), color: '#EF4444' },
+          { name: 'Resuelto', value: Math.round((resueltosCount / total) * 100), color: '#10B981' },
         ]);
       }
 
       // Urgent cases (Vencidos)
-      const today = new Date();
       const urgent = carpetas
         .filter(c => c.estado === 'VENCIDO' || (new Date(c.fecha_vencimiento) < today && c.estado !== 'RESUELTO'))
         .map(c => {
