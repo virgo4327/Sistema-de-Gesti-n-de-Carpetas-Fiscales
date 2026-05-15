@@ -58,6 +58,8 @@ export default function NuevoRegistroPage() {
     estado: 'EN INVESTIGACIÓN',
     info_resolucion: ''
   });
+  const [isDuplicate, setIsDuplicate] = useState(false);
+  const [checkingCF, setCheckingCF] = useState(false);
 
   useEffect(() => {
     fetchNextOrderNumber();
@@ -72,6 +74,34 @@ export default function NuevoRegistroPage() {
       setNextOrderNumber((count || 0) + 1);
     }
   };
+
+  const checkDuplicateCF = async (cf: string) => {
+    if (!cf || cf.length < 5) {
+      setIsDuplicate(false);
+      return;
+    }
+    
+    setCheckingCF(true);
+    const { data, error } = await supabase
+      .from('carpetas_fiscales')
+      .select('numero_cf')
+      .eq('numero_cf', cf)
+      .maybeSingle();
+      
+    if (!error && data) {
+      setIsDuplicate(true);
+    } else {
+      setIsDuplicate(false);
+    }
+    setCheckingCF(false);
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (formData.cf) checkDuplicateCF(formData.cf);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [formData.cf]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,14 +178,29 @@ export default function NuevoRegistroPage() {
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">N° Carpeta Fiscal *</label>
-                <input 
-                  type="text" 
-                  placeholder="2406010500-2024-..."
-                  required
-                  className="input-field font-mono h-11"
-                  value={formData.cf}
-                  onChange={(e) => setFormData({...formData, cf: e.target.value})}
-                />
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    placeholder="2406010500-2024-..."
+                    required
+                    className={cn(
+                      "input-field font-mono h-11 transition-all",
+                      isDuplicate && "border-red-500 focus:ring-red-500 text-red-400"
+                    )}
+                    value={formData.cf}
+                    onChange={(e) => setFormData({...formData, cf: e.target.value.toUpperCase()})}
+                  />
+                  {checkingCF && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <div className="w-4 h-4 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                </div>
+                {isDuplicate && (
+                  <p className="text-[10px] font-bold text-red-500 animate-in fade-in slide-in-from-top-1">
+                    ESTE NÚMERO DE CARPETA YA ESTÁ REGISTRADO
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -304,10 +349,11 @@ export default function NuevoRegistroPage() {
           </button>
           <button 
             type="submit" 
-            className="px-10 py-3 bg-[#185FA5] text-white rounded-xl hover:bg-[#0C447C] font-black text-sm shadow-xl shadow-blue-900/30 flex items-center gap-3 transition-all active:scale-95 uppercase tracking-widest"
+            disabled={loading || isDuplicate}
+            className="px-10 py-3 bg-[#185FA5] text-white rounded-xl hover:bg-[#0C447C] font-black text-sm shadow-xl shadow-blue-900/30 flex items-center gap-3 transition-all active:scale-95 uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="w-5 h-5" />
-            Registrar Carpeta
+            {loading ? 'Registrando...' : 'Registrar Carpeta'}
           </button>
         </div>
       </form>

@@ -19,6 +19,9 @@ import {
   Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function RegistroPage() {
   const router = useRouter();
@@ -27,6 +30,7 @@ export default function RegistroPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [showExportOptions, setShowExportOptions] = useState(false);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: '', numero: '' });
 
   useEffect(() => {
     fetchCarpetas();
@@ -51,10 +55,9 @@ export default function RegistroPage() {
     setLoading(false);
   };
 
-  const handleDelete = async (id: string, numero_cf: string) => {
-    const confirm = window.confirm(`¿Está seguro que desea eliminar la carpeta ${numero_cf}? Esta acción no se puede deshacer.`);
-    if (!confirm) return;
-
+  const handleDelete = async () => {
+    const { id, numero } = deleteModal;
+    
     const { error } = await supabase
       .from('carpetas_fiscales')
       .delete()
@@ -64,7 +67,6 @@ export default function RegistroPage() {
       alert('Error al eliminar: ' + error.message);
     } else {
       setCarpetas(carpetas.filter(c => c.id !== id));
-      alert('Carpeta eliminada exitosamente');
     }
   };
 
@@ -234,31 +236,33 @@ export default function RegistroPage() {
           </div>
         </div>
 
-        <div className="table-container border-none bg-transparent overflow-x-auto">
-          {loading ? (
-            <div className="py-20 text-center text-slate-500 font-bold uppercase tracking-widest animate-pulse">
-              Cargando registros...
-            </div>
-          ) : (
-            <table className="w-full text-left min-w-[1200px]">
-              <thead>
-                <tr className="bg-[#0B0E14] border-y border-[#1E293B]">
-                  <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">N° Ord.</th>
-                  <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">F. Ingreso</th>
-                  <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Carpeta Fiscal</th>
-                  <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Investigado</th>
-                  <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Delito / Art.</th>
-                  <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Agraviado</th>
-                  <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Fiscalía / Responsable</th>
-                  <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Vencimiento</th>
-                  <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Estado Actual</th>
-                  <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Alerta</th>
-                  <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1E293B]">
-                {filteredCarpetas.map((carpeta) => (
-                  <tr key={carpeta.id} className={cn("transition-colors group", getRowClass(carpeta.dias, carpeta.estado))}>
+                {loading ? (
+                  Array(5).fill(0).map((_, i) => (
+                    <tr key={i}>
+                      <td className="px-4 py-4"><Skeleton className="w-8 h-4" /></td>
+                      <td className="px-4 py-4"><Skeleton className="w-20 h-4" /></td>
+                      <td className="px-4 py-4"><Skeleton className="w-32 h-4" /></td>
+                      <td className="px-4 py-4"><Skeleton className="w-40 h-4" /></td>
+                      <td className="px-4 py-4"><Skeleton className="w-24 h-4" /></td>
+                      <td className="px-4 py-4"><Skeleton className="w-24 h-4" /></td>
+                      <td className="px-4 py-4"><Skeleton className="w-32 h-4" /></td>
+                      <td className="px-4 py-4"><Skeleton className="w-20 h-4" /></td>
+                      <td className="px-4 py-4 text-center"><Skeleton className="w-24 h-6 mx-auto" /></td>
+                      <td className="px-4 py-4 text-center"><Skeleton className="w-16 h-10 mx-auto" /></td>
+                      <td className="px-4 py-4"><Skeleton className="w-16 h-8 ml-auto" /></td>
+                    </tr>
+                  ))
+                ) : filteredCarpetas.map((carpeta, idx) => (
+                  <motion.tr 
+                    key={carpeta.id} 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className={cn("transition-colors group", getRowClass(carpeta.dias, carpeta.estado))}
+                  >
                     <td className="px-4 py-4 text-[11px] font-bold text-slate-600">{carpeta.correlativo.toString().padStart(3, '0')}</td>
                     <td className="px-4 py-4 text-[11px] text-slate-400 font-medium">{carpeta.fecha_ingreso}</td>
                     <td className="px-4 py-4 text-xs font-mono font-bold text-blue-400">{carpeta.numero_cf}</td>
@@ -314,7 +318,7 @@ export default function RegistroPage() {
                           <FileEdit className="w-4 h-4" />
                         </button>
                         <button 
-                          onClick={() => handleDelete(carpeta.id, carpeta.numero_cf)}
+                          onClick={() => setDeleteModal({ isOpen: true, id: carpeta.id, numero: carpeta.numero_cf })}
                           className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all" 
                           title="Eliminar"
                         >
@@ -322,7 +326,7 @@ export default function RegistroPage() {
                         </button>
                       </div>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>
@@ -346,6 +350,15 @@ export default function RegistroPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmModal 
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ ...deleteModal, isOpen: false })}
+        onConfirm={handleDelete}
+        title="¿Eliminar Carpeta Fiscal?"
+        message={`¿Está seguro que desea eliminar la carpeta ${deleteModal.numero}? Esta acción es permanente y no se podrá deshacer.`}
+        confirmText="Eliminar Ahora"
+      />
     </div>
   );
 }

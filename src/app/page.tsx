@@ -10,6 +10,8 @@ import {
   ShieldAlert,
   Clock
 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { 
   BarChart, 
   Bar, 
@@ -102,35 +104,61 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, i) => (
-          <div key={i} className="card hover:border-[#185FA5]/50 transition-all cursor-default group border-transparent">
-            <div className="flex justify-between items-start">
-              <div className={cn("p-3 rounded-xl", stat.bg)}>
-                <stat.icon className={cn("w-6 h-6", stat.color)} />
+        {loading ? (
+          Array(4).fill(0).map((_, i) => (
+            <div key={i} className="card border-transparent">
+              <div className="flex justify-between items-start">
+                <Skeleton className="w-12 h-12 rounded-xl" />
+                <div className="space-y-2">
+                  <Skeleton className="w-20 h-3 ml-auto" />
+                  <Skeleton className="w-10 h-8 ml-auto" />
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em]">{stat.label}</p>
-                <h3 className="text-3xl font-black text-white mt-1 tabular-nums">{stat.value}</h3>
-              </div>
+              <Skeleton className="w-24 h-4 mt-4 rounded-full" />
             </div>
-            {stat.sub && (
-              <div className="mt-4 flex items-center gap-1.5">
-                <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-bold uppercase border", 
-                  stat.label.includes('Vencidos') ? 'bg-red-500/10 text-red-400 border-red-500/20' : 
-                  stat.label.includes('Investigación') ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20'
-                )}>
-                  {stat.sub}
-                </span>
+          ))
+        ) : (
+          stats.map((stat, i) => (
+            <motion.div 
+              key={i} 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="card hover:border-[#185FA5]/50 transition-all cursor-default group border-transparent"
+            >
+              <div className="flex justify-between items-start">
+                <div className={cn("p-3 rounded-xl", stat.bg)}>
+                  <stat.icon className={cn("w-6 h-6", stat.color)} />
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em]">{stat.label}</p>
+                  <h3 className="text-3xl font-black text-white mt-1 tabular-nums">{stat.value}</h3>
+                </div>
               </div>
-            )}
-          </div>
-        ))}
+              {stat.sub && (
+                <div className="mt-4 flex items-center gap-1.5">
+                  <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-bold uppercase border", 
+                    stat.label.includes('Vencidos') ? 'bg-red-500/10 text-red-400 border-red-500/20' : 
+                    stat.label.includes('Investigación') ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20'
+                  )}>
+                    {stat.sub}
+                  </span>
+                </div>
+              )}
+            </motion.div>
+          ))
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 card">
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+          className="lg:col-span-2 card"
+        >
           <div className="flex items-center justify-between mb-8">
             <h3 className="font-bold text-white flex items-center gap-2 tracking-tight uppercase">
               <TrendingUp className="w-5 h-5 text-blue-400" />
@@ -169,25 +197,43 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
-        <div className="card">
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5 }}
+          className="card"
+        >
           <h3 className="font-bold text-white mb-8 flex items-center gap-2 tracking-tight uppercase">
             <BarChart3 className="w-5 h-5 text-blue-400" />
             Distribución de Estados
           </h3>
           <div className="space-y-6">
-            {statusData.length > 0 ? statusData.map((item, i) => (
+            {loading ? (
+              Array(3).fill(0).map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="flex justify-between">
+                    <Skeleton className="w-24 h-3" />
+                    <Skeleton className="w-8 h-3" />
+                  </div>
+                  <Skeleton className="w-full h-2.5 rounded-full" />
+                </div>
+              ))
+            ) : statusData.length > 0 ? statusData.map((item, i) => (
               <div key={i} className="space-y-2">
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-400 font-bold uppercase tracking-wider">{item.name}</span>
                   <span className="font-black text-white">{item.value}%</span>
                 </div>
                 <div className="w-full bg-[#0B0E14] h-2.5 rounded-full overflow-hidden border border-[#1E293B]">
-                  <div 
-                    className="h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(0,0,0,0.5)]" 
-                    style={{ width: `${item.value}%`, backgroundColor: item.color }}
-                  ></div>
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${item.value}%` }}
+                    transition={{ duration: 1, delay: 0.8 }}
+                    className="h-full rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)]" 
+                    style={{ backgroundColor: item.color }}
+                  ></motion.div>
                 </div>
               </div>
             )) : (
@@ -196,10 +242,15 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
 
-      <div className="card">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="card"
+      >
         <h3 className="font-bold text-white mb-6 flex items-center gap-2 tracking-tight uppercase">
           <ShieldAlert className="w-5 h-5 text-red-400" />
           Alertas Críticas (Vencidos)
@@ -235,8 +286,14 @@ export default function Dashboard() {
               )}
             </tbody>
           </table>
+          {loading && (
+            <div className="p-10 space-y-4">
+              <Skeleton className="w-full h-12" />
+              <Skeleton className="w-full h-12" />
+            </div>
+          )}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
