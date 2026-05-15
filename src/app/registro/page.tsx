@@ -195,7 +195,7 @@ export default function RegistroPage() {
             className="btn-primary flex items-center gap-2 px-6"
           >
             <FileText className="w-4 h-4" />
-            Exportar PDF
+            Exportar Reportes
           </button>
 
           {showExportOptions && (
