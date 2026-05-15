@@ -278,10 +278,24 @@ export default function RegistroPage() {
             </button>
           </div>
         </div>
-
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#1E293B]">
+        <div className="table-container border-none bg-transparent overflow-x-auto">
+          <table className="w-full text-left min-w-[1200px]">
+            <thead>
+              <tr className="bg-[#0B0E14] border-y border-[#1E293B]">
+                <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">N° Ord.</th>
+                <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">F. Ingreso</th>
+                <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Carpeta Fiscal</th>
+                <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Investigado</th>
+                <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Delito / Art.</th>
+                <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Agraviado</th>
+                <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Fiscalía / Responsable</th>
+                <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Vencimiento</th>
+                <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Estado Actual</th>
+                <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Alerta</th>
+                <th className="px-4 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#1E293B]">
                 {loading ? (
                   Array(5).fill(0).map((_, i) => (
                     <tr key={i}>
@@ -373,8 +387,7 @@ export default function RegistroPage() {
                 ))}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
 
         <div className="flex items-center justify-between pt-6 border-t border-[#1E293B]">
           <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider">

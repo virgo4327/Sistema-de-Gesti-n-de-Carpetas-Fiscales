@@ -34,6 +34,7 @@ export default function Dashboard() {
   const [crimeData, setCrimeData] = useState<any[]>([]);
   const [statusData, setStatusData] = useState<any[]>([]);
   const [urgentCases, setUrgentCases] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchStats();
@@ -101,6 +102,7 @@ export default function Dashboard() {
         .slice(0, 5);
       setUrgentCases(urgent);
     }
+    setLoading(false);
   };
 
   return (
