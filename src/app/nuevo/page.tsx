@@ -14,6 +14,7 @@ import {
 import { cn } from '@/lib/utils';
 
 const articulosCP = [
+  { id: '381', label: 'Art. 381 - Nombramiento, designación, contratación, encargatura o aceptación ilegal de cargo' },
   { id: '382', label: 'Art. 382 – Concusión' },
   { id: '383', label: 'Art. 383 – Cobro indebido' },
   { id: '384', label: 'Art. 384 – Colusión simple y agravada' },
