@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 import { 
   Search, 
   Filter, 
@@ -16,7 +17,8 @@ import {
   ChevronRight,
   AlertTriangle,
   CheckCircle2,
-  Clock
+  Clock,
+  FileSpreadsheet
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -125,6 +127,37 @@ export default function RegistroPage() {
     doc.save(fileName);
   };
 
+  const exportToExcel = (filter: string) => {
+    const dataToExport = carpetas.filter(c =>
+      filter === 'ALL' || c.estado === filter
+    );
+
+    if (dataToExport.length === 0) {
+      alert('No hay registros para exportar.');
+      return;
+    }
+
+    const worksheetData = dataToExport.map(c => ({
+      'FECHA INGRESO': c.fecha_ingreso,
+      'N° CARPETA FISCAL': c.numero_cf,
+      'INVESTIGADO': c.investigado,
+      'DELITO / ARTÍCULO': c.articulo_cp,
+      'AGRAVIADO': c.agraviado,
+      'FISCALÍA': c.fiscalia,
+      'FISCAL RESPONSABLE': c.fiscal_responsable,
+      'VENCIMIENTO': c.fecha_vencimiento,
+      'ESTADO': c.estado,
+      'INFO RESOLUCIÓN': c.info_resolucion || ''
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Carpetas Fiscales');
+
+    const fileName = `Reporte_DEPDICC_${filter === 'ALL' ? 'TODOS' : filter.replace(/ /g, '_')}_${new Date().getTime()}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
+
   const getSemaforoClass = (dias: number, estado: string) => {
     if (estado === 'RESUELTO') return "bg-green-500/20 text-green-400 border-green-500/30";
     if (estado === 'VENCIDO' || dias <= 0) return "bg-red-500 text-white border-red-600 shadow-[0_0_15px_rgba(239,68,68,0.4)]";
@@ -166,37 +199,47 @@ export default function RegistroPage() {
           </button>
 
           {showExportOptions && (
-            <div className="absolute right-0 mt-2 w-64 bg-[#151B28] border border-[#1E293B] rounded-xl shadow-2xl z-20 p-2 animate-in slide-in-from-top-2 duration-200">
-              <p className="px-3 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-[#1E293B]">Opciones de Reporte</p>
-              <div className="py-1">
-                <button
-                  onClick={() => { exportToPDF('ALL'); setShowExportOptions(false); }}
-                  className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
-                >
-                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                  Todos los Estados
-                </button>
-                <button
-                  onClick={() => { exportToPDF('EN INVESTIGACIÓN'); setShowExportOptions(false); }}
-                  className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
-                >
-                  <Clock className="w-3.5 h-3.5 text-orange-400" />
-                  Solo En Investigación
-                </button>
-                <button
-                  onClick={() => { exportToPDF('VENCIDO'); setShowExportOptions(false); }}
-                  className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
-                >
-                  <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
-                  Solo Vencidos
-                </button>
-                <button
-                  onClick={() => { exportToPDF('RESUELTO'); setShowExportOptions(false); }}
-                  className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                  Solo Resueltos
-                </button>
+            <div className="absolute right-0 mt-2 w-72 bg-[#151B28] border border-[#1E293B] rounded-xl shadow-2xl z-20 p-2 animate-in slide-in-from-top-2 duration-200">
+              <div className="space-y-4">
+                <div>
+                  <p className="px-3 py-2 text-[10px] font-black text-blue-400 uppercase tracking-widest border-b border-[#1E293B]">Exportar a PDF</p>
+                  <div className="py-1">
+                    <button
+                      onClick={() => { exportToPDF('ALL'); setShowExportOptions(false); }}
+                      className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      Todos los Estados
+                    </button>
+                    <button
+                      onClick={() => { exportToPDF('EN INVESTIGACIÓN'); setShowExportOptions(false); }}
+                      className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
+                    >
+                      <Clock className="w-3.5 h-3.5 text-orange-400" />
+                      Solo En Investigación
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="px-3 py-2 text-[10px] font-black text-green-400 uppercase tracking-widest border-b border-[#1E293B]">Exportar a Excel (.xlsx)</p>
+                  <div className="py-1">
+                    <button
+                      onClick={() => { exportToExcel('ALL'); setShowExportOptions(false); }}
+                      className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
+                    >
+                      <FileSpreadsheet className="w-3.5 h-3.5 text-green-500" />
+                      Reporte Completo Excel
+                    </button>
+                    <button
+                      onClick={() => { exportToExcel('VENCIDO'); setShowExportOptions(false); }}
+                      className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
+                      Solo Críticos (Vencidos)
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
