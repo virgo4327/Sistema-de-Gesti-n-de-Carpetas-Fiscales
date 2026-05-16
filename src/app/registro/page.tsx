@@ -74,9 +74,13 @@ export default function RegistroPage() {
 
   const exportToPDF = (filter: string) => {
     // Filtrar directamente desde carpetas con el parámetro recibido (sin depender de estado async)
-    const dataToExport = carpetas.filter(c =>
-      filter === 'ALL' || c.estado === filter
-    );
+    const dataToExport = carpetas.filter(c => {
+      if (filter === 'ALL') return true;
+      if (filter === 'VENCIDO') {
+        return c.estado === 'VENCIDO' || (c.dias <= 0 && c.estado !== 'RESUELTO');
+      }
+      return c.estado === filter;
+    });
 
     if (dataToExport.length === 0) {
       alert('No hay registros para exportar con este filtro.');
@@ -128,9 +132,13 @@ export default function RegistroPage() {
   };
 
   const exportToExcel = (filter: string) => {
-    const dataToExport = carpetas.filter(c =>
-      filter === 'ALL' || c.estado === filter
-    );
+    const dataToExport = carpetas.filter(c => {
+      if (filter === 'ALL') return true;
+      if (filter === 'VENCIDO') {
+        return c.estado === 'VENCIDO' || (c.dias <= 0 && c.estado !== 'RESUELTO');
+      }
+      return c.estado === filter;
+    });
 
     if (dataToExport.length === 0) {
       alert('No hay registros para exportar.');
@@ -193,7 +201,16 @@ export default function RegistroPage() {
       c.numero_cf.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.investigado.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.fiscal_responsable.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'ALL' || c.estado === statusFilter;
+    
+    let matchesStatus = false;
+    if (statusFilter === 'ALL') {
+      matchesStatus = true;
+    } else if (statusFilter === 'VENCIDO') {
+      matchesStatus = c.estado === 'VENCIDO' || (c.dias <= 0 && c.estado !== 'RESUELTO');
+    } else {
+      matchesStatus = c.estado === statusFilter;
+    }
+
     return matchesSearch && matchesStatus;
   });
 
@@ -225,14 +242,28 @@ export default function RegistroPage() {
                       className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
                     >
                       <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                      Todos los Estados
+                      Todos los Estados (PDF)
                     </button>
                     <button
                       onClick={() => { exportToPDF('EN INVESTIGACIÓN'); setShowExportOptions(false); }}
                       className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
                     >
                       <Clock className="w-3.5 h-3.5 text-orange-400" />
-                      Solo En Investigación
+                      Solo En Investigación (PDF)
+                    </button>
+                    <button
+                      onClick={() => { exportToPDF('VENCIDO'); setShowExportOptions(false); }}
+                      className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
+                      Solo Vencidos (PDF)
+                    </button>
+                    <button
+                      onClick={() => { exportToPDF('RESUELTO'); setShowExportOptions(false); }}
+                      className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                      Solo Resueltos (PDF)
                     </button>
                   </div>
                 </div>
@@ -248,11 +279,25 @@ export default function RegistroPage() {
                       Reporte Completo Excel
                     </button>
                     <button
+                      onClick={() => { exportToExcel('EN INVESTIGACIÓN'); setShowExportOptions(false); }}
+                      className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
+                    >
+                      <Clock className="w-3.5 h-3.5 text-orange-400" />
+                      Solo En Investigación (Excel)
+                    </button>
+                    <button
                       onClick={() => { exportToExcel('VENCIDO'); setShowExportOptions(false); }}
                       className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
                     >
                       <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
-                      Solo Críticos (Vencidos)
+                      Solo Vencidos (Excel)
+                    </button>
+                    <button
+                      onClick={() => { exportToExcel('RESUELTO'); setShowExportOptions(false); }}
+                      className="flex items-center gap-3 w-full px-3 py-2 text-xs font-bold text-slate-300 hover:bg-[#1E293B] hover:text-white rounded-lg transition-colors"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                      Solo Resueltos (Excel)
                     </button>
                   </div>
                 </div>
@@ -282,7 +327,7 @@ export default function RegistroPage() {
             >
               <option value="ALL">Todos los Estados</option>
               <option value="EN INVESTIGACIÓN">EN INVESTIGACIÓN</option>
-              <option value="VENCIDO">VENCIDO</option>
+              <option value="VENCIDO">VENCIDOS</option>
               <option value="RESUELTO">RESUELTO</option>
             </select>
             <button
