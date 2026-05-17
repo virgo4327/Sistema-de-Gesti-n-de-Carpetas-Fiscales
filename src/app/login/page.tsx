@@ -49,7 +49,7 @@ export default function LoginPage() {
           </div>
           <div>
             <h1 className="text-3xl font-black text-white tracking-tighter uppercase">DEPDICC IQUITOS</h1>
-            <p className="text-slate-400 font-bold text-sm tracking-widest mt-1">SISTEMA DE GESTIÓN FISCAL</p>
+            <h2 className="text-slate-400 font-bold text-sm tracking-widest mt-1">SISTEMA DE GESTIÓN FISCAL</h2>
           </div>
         </div>
 
@@ -110,7 +110,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-[10px] text-slate-600 font-bold uppercase tracking-widest">
-          © 2024 DEPDICC PNP — Todos los derechos reservados
+          © 2026 DEPDICC PNP — Todos los derechos reservados
         </p>
       </div>
     </div>
