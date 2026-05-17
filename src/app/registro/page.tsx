@@ -109,7 +109,7 @@ export default function RegistroPage() {
       c.investigado,
       c.articulo_cp,
       c.agraviado,
-      c.fiscalia,
+      `${c.fiscalia}\n(Resp: ${c.fiscal_responsable ?? 'Sin Resp.'})`,
       c.fecha_vencimiento,
       c.estado === 'RESUELTO'
         ? `RESUELTO\n(${c.info_resolucion ?? 'S/D'})`
@@ -118,7 +118,7 @@ export default function RegistroPage() {
 
     autoTable(doc, {
       startY: 53,
-      head: [['Ingreso', 'N° Carpeta Fiscal', 'Investigado', 'Delito / Art. CP', 'Agraviado', 'Fiscalía', 'Vencimiento', 'Estado / Resolución']],
+      head: [['Ingreso', 'N° Carpeta Fiscal', 'Investigado', 'Delito / Art. CP', 'Agraviado', 'Fiscalía / Responsable', 'Vencimiento', 'Estado / Resolución']],
       body: tableData,
       theme: 'grid',
       headStyles: { fillColor: [12, 68, 124], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
