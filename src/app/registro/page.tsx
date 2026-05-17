@@ -33,10 +33,16 @@ export default function RegistroPage() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [showExportOptions, setShowExportOptions] = useState(false);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: '', numero: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
 
   useEffect(() => {
     fetchCarpetas();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter]);
 
   const fetchCarpetas = async () => {
     setLoading(true);
@@ -214,6 +220,10 @@ export default function RegistroPage() {
     return matchesSearch && matchesStatus;
   });
 
+  const totalPages = Math.max(1, Math.ceil(filteredCarpetas.length / itemsPerPage));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedCarpetas = filteredCarpetas.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -373,7 +383,7 @@ export default function RegistroPage() {
                       <td className="px-4 py-4"><Skeleton className="w-16 h-8 ml-auto" /></td>
                     </tr>
                   ))
-                ) : filteredCarpetas.map((carpeta, idx) => (
+                ) : paginatedCarpetas.map((carpeta, idx) => (
                   <motion.tr 
                     key={carpeta.id} 
                     initial={{ opacity: 0, y: 10 }}
@@ -452,19 +462,50 @@ export default function RegistroPage() {
 
         <div className="flex items-center justify-between pt-6 border-t border-[#1E293B]">
           <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider">
-            {filteredCarpetas.length} registros encontrados
+            {filteredCarpetas.length} registros encontrados {filteredCarpetas.length > itemsPerPage && `(Pág. ${currentPage} de ${totalPages})`}
           </p>
-          <div className="flex items-center gap-1">
-            <button className="p-2 text-slate-600 hover:text-white disabled:opacity-20" disabled>
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <div className="flex items-center gap-2 mx-2">
-              <button className="w-9 h-9 flex items-center justify-center text-xs font-black bg-[#185FA5] text-white rounded-lg shadow-lg shadow-blue-900/20">1</button>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="p-2 text-slate-400 hover:text-white disabled:opacity-20 transition-colors cursor-pointer disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <div className="flex items-center gap-1.5 mx-2">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
+                  .map((page, idx, arr) => {
+                    const showEllipsisBefore = page > 1 && arr[idx - 1] !== page - 1;
+                    return (
+                      <div key={page} className="flex items-center gap-1.5">
+                        {showEllipsisBefore && <span className="text-slate-600 text-xs px-1">...</span>}
+                        <button
+                          onClick={() => setCurrentPage(page)}
+                          className={cn(
+                            "w-9 h-9 flex items-center justify-center text-xs font-black rounded-lg transition-all cursor-pointer",
+                            currentPage === page 
+                              ? "bg-[#185FA5] text-white shadow-lg shadow-blue-900/20" 
+                              : "text-slate-400 hover:text-white hover:bg-[#1E293B]"
+                          )}
+                        >
+                          {page}
+                        </button>
+                      </div>
+                    );
+                  })
+                }
+              </div>
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="p-2 text-slate-400 hover:text-white disabled:opacity-20 transition-colors cursor-pointer disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
             </div>
-            <button className="p-2 text-slate-600 hover:text-white" disabled>
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
+          )}
         </div>
       </div>
 

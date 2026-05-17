@@ -43,7 +43,7 @@ export default function Dashboard() {
   const fetchStats = async () => {
     const { data: carpetas, error } = await supabase
       .from('carpetas_fiscales')
-      .select('*');
+      .select('estado, fecha_vencimiento, articulo_cp, numero_cf, investigado');
 
     if (!error && carpetas) {
       const today = new Date();
