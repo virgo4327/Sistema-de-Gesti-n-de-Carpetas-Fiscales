@@ -126,10 +126,15 @@ export default function NuevoRegistroPage() {
 
       if (error) throw error;
 
-      alert('Carpeta registrada exitosamente');
+      // Disparar notificación Toast fluida y redireccionar de inmediato
+      window.dispatchEvent(new CustomEvent('toast', { 
+        detail: { message: 'Carpeta fiscal registrada exitosamente', type: 'success' } 
+      }));
       router.push('/registro');
     } catch (error: any) {
-      alert('Error al registrar: ' + error.message);
+      window.dispatchEvent(new CustomEvent('toast', { 
+        detail: { message: 'Error al registrar carpeta: ' + error.message, type: 'error' } 
+      }));
     } finally {
       setLoading(false);
     }

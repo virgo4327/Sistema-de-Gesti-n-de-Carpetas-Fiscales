@@ -115,10 +115,15 @@ export default function EditarRegistroPage() {
 
       if (error) throw error;
 
-      alert('Carpeta actualizada exitosamente');
+      // Disparar notificación Toast fluida y redireccionar de inmediato
+      window.dispatchEvent(new CustomEvent('toast', { 
+        detail: { message: 'Carpeta fiscal actualizada exitosamente', type: 'success' } 
+      }));
       router.push('/registro');
     } catch (error: any) {
-      alert('Error al actualizar: ' + error.message);
+      window.dispatchEvent(new CustomEvent('toast', { 
+        detail: { message: 'Error al actualizar carpeta: ' + error.message, type: 'error' } 
+      }));
     } finally {
       setSaving(false);
     }
