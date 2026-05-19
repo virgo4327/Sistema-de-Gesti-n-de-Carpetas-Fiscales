@@ -329,10 +329,10 @@ export default function EditarRegistroPage() {
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-4 pt-6">
+        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-4 pt-6 w-full">
           <button 
             type="button" 
-            className="px-8 py-3 text-slate-400 font-bold text-sm hover:text-white transition-colors uppercase tracking-widest"
+            className="w-full sm:w-auto px-8 py-3 text-slate-400 hover:text-white transition-colors uppercase tracking-widest font-black text-xs sm:text-sm text-center cursor-pointer"
             onClick={() => router.back()}
           >
             Cancelar
@@ -340,9 +340,9 @@ export default function EditarRegistroPage() {
           <button 
             type="submit" 
             disabled={saving}
-            className="px-10 py-3 bg-[#185FA5] text-white rounded-xl hover:bg-[#0C447C] font-black text-sm shadow-xl shadow-blue-900/30 flex items-center gap-3 transition-all active:scale-95 uppercase tracking-widest disabled:opacity-50"
+            className="w-full sm:w-auto px-10 py-3 bg-[#185FA5] text-white rounded-xl hover:bg-[#0C447C] font-black text-xs sm:text-sm shadow-xl shadow-blue-900/30 flex items-center justify-center gap-3 transition-all active:scale-95 uppercase tracking-widest disabled:opacity-50 cursor-pointer"
           >
-            <Save className="w-5 h-5" />
+            <Save className="w-4 h-4 sm:w-5 sm:h-5" />
             {saving ? 'Guardando...' : 'Guardar Cambios'}
           </button>
         </div>

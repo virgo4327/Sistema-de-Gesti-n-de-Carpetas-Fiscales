@@ -242,7 +242,7 @@ export default function RegistroPage() {
           </button>
 
           {showExportOptions && (
-            <div className="absolute right-0 mt-2 w-72 bg-[#151B28] border border-[#1E293B] rounded-xl shadow-2xl z-20 p-2 animate-in slide-in-from-top-2 duration-200">
+            <div className="absolute left-0 md:left-auto md:right-0 mt-2 w-72 bg-[#151B28] border border-[#1E293B] rounded-xl shadow-2xl z-20 p-2 animate-in slide-in-from-top-2 duration-200">
               <div className="space-y-4">
                 <div>
                   <p className="px-3 py-2 text-[10px] font-black text-blue-400 uppercase tracking-widest border-b border-[#1E293B]">Exportar a PDF</p>
@@ -460,8 +460,8 @@ export default function RegistroPage() {
             </table>
           </div>
 
-        <div className="flex items-center justify-between pt-6 border-t border-[#1E293B]">
-          <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-[#1E293B]">
+          <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider text-center sm:text-left">
             {filteredCarpetas.length} registros encontrados {filteredCarpetas.length > itemsPerPage && `(Pág. ${currentPage} de ${totalPages})`}
           </p>
           {totalPages > 1 && (
